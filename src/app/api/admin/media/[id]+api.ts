@@ -52,15 +52,20 @@ export async function PUT(request: Request, { id }: Record<string, string>) {
   return Response.json({ ok: true, id: row.id, publicId: publicId(row), translation });
 }
 
-/** Admin: delete a media post (its translation stays), and its uploaded image if now unused. */
+/** Admin: delete a media post together with its other-language version, and their image if unused. */
 export async function DELETE(request: Request, { id }: Record<string, string>) {
   if (!(await isAdmin(request))) return unauthorized();
   const postId = parseId(id);
   if (postId === null) return notFound();
 
   const sql = await db();
-  const [row] = await sql`DELETE FROM media_posts WHERE id = ${postId} RETURNING image_id`;
-  if (!row) return notFound();
-  await deleteImageIfUnused(sql, row.image_id);
-  return Response.json({ ok: true });
+  const [post] = (await sql`SELECT pair_id FROM media_posts WHERE id = ${postId}`) as { pair_id: number | null }[];
+  if (!post) return notFound();
+  // The twin is the row this post points to, or any row pointing back at it.
+  const rows = (await sql`
+    DELETE FROM media_posts
+    WHERE id = ${postId} OR id = ${post.pair_id ?? 0} OR pair_id = ${postId}
+    RETURNING id, image_id`) as { id: number; image_id: number | null }[];
+  for (const imageId of new Set(rows.map((r) => r.image_id))) await deleteImageIfUnused(sql, imageId);
+  return Response.json({ ok: true, deleted: rows.map((r) => r.id) });
 }

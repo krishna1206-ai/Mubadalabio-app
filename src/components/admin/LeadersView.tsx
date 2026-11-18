@@ -88,11 +88,11 @@ export function LeadersView({ token, onSignOut }: { token: string; onSignOut: ()
   );
 
   const remove = async (l: AdminLeader) => {
-    const twin = l.pair_id ? ` The ${l.lang === 'en' ? 'العربية' : 'English'} version stays; delete it separately if needed.` : '';
+    const twin = l.pair_id ? ` Their ${l.lang === 'en' ? 'العربية' : 'English'} version will be removed too.` : '';
     if (!(await confirmAction('Delete person', `Remove “${l.name}” from the Leadership page?${twin}`))) return;
     try {
-      await deleteLeader(token, l.id);
-      setLeaders((list) => list.filter((x) => x.id !== l.id));
+      const deleted = await deleteLeader(token, l.id);
+      setLeaders((list) => list.filter((x) => !deleted.includes(x.id)));
       setNotice(null);
     } catch (e) {
       handle(e);

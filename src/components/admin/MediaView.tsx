@@ -79,10 +79,11 @@ export function MediaView({ token, onSignOut }: { token: string; onSignOut: () =
   }, [token, handle]);
 
   const remove = async (p: MediaPost) => {
-    if (!(await confirmAction('Delete post', `Delete “${p.title}”? It will be removed from the Media page.`))) return;
+    const both = p.pair_id ? ` Its ${p.lang === 'en' ? 'العربية' : 'English'} version will be deleted too.` : '';
+    if (!(await confirmAction('Delete post', `Delete “${p.title}”? It will be removed from the Media page.${both}`))) return;
     try {
-      await deleteMediaPost(token, p.id);
-      setPosts((list) => list.filter((x) => x.id !== p.id));
+      const deleted = await deleteMediaPost(token, p.id);
+      setPosts((list) => list.filter((x) => !deleted.includes(x.id)));
       setNotice(null);
     } catch (e) {
       handle(e);

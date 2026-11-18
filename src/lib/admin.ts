@@ -109,8 +109,9 @@ export async function saveMediaPost(token: string, payload: MediaPayload, id?: n
   return data as SavedPost;
 }
 
+/** Deletes the post and its other-language version; resolves to the ids removed. */
 export const deleteMediaPost = (token: string, id: number) =>
-  request(`/api/admin/media/${id}`, { method: 'DELETE', token });
+  request<{ deleted: number[] }>(`/api/admin/media/${id}`, { method: 'DELETE', token }).then((d) => d.deleted);
 
 // ---- Leadership (Board of Directors / Leadership Team) ---------------------
 
@@ -162,5 +163,6 @@ export async function saveLeader(token: string, payload: LeaderPayload, id?: num
   return data as SavedLeader;
 }
 
+/** Deletes the profile and its other-language version; resolves to the ids removed. */
 export const deleteLeader = (token: string, id: number) =>
-  request(`/api/admin/leaders/${id}`, { method: 'DELETE', token });
+  request<{ deleted: number[] }>(`/api/admin/leaders/${id}`, { method: 'DELETE', token }).then((d) => d.deleted);

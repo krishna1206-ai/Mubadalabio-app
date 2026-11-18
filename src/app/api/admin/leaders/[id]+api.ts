@@ -65,16 +65,21 @@ export async function PUT(request: Request, { id }: Record<string, string>) {
   return Response.json({ ok: true, id: leaderId, translation });
 }
 
-/** Admin: delete a profile (its other-language version stays), and its photo if now unused. */
+/** Admin: delete a profile together with its other-language version, and their photo if unused. */
 export async function DELETE(request: Request, { id }: Record<string, string>) {
   if (!(await isAdmin(request))) return unauthorized();
   const leaderId = parseId(id);
   if (leaderId === null) return notFound();
 
   const sql = await db();
-  const [row] = await sql`DELETE FROM leaders WHERE id = ${leaderId} RETURNING photo_id`;
-  if (!row) return notFound();
-  await deleteImageIfUnused(sql, row.photo_id);
+  const [leader] = (await sql`SELECT pair_id FROM leaders WHERE id = ${leaderId}`) as { pair_id: number | null }[];
+  if (!leader) return notFound();
+  // The twin is the row this profile points to, or any row pointing back at it.
+  const rows = (await sql`
+    DELETE FROM leaders
+    WHERE id = ${leaderId} OR id = ${leader.pair_id ?? 0} OR pair_id = ${leaderId}
+    RETURNING id, photo_id`) as { id: number; photo_id: number | null }[];
+  for (const photoId of new Set(rows.map((r) => r.photo_id))) await deleteImageIfUnused(sql, photoId);
   await compactOrder(sql); // close the gap
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, deleted: rows.map((r) => r.id) });
 }
