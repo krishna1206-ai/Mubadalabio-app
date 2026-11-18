@@ -2,7 +2,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Animated,
   KeyboardAvoidingView,
   Linking,
@@ -54,6 +53,7 @@ export default function Contact() {
   const [errors, setErrors] = useState<ReturnType<typeof validate>>({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [failed, setFailed] = useState(false);
   const shake = useRef(new Animated.Value(0)).current;
   const success = useRef(new Animated.Value(0)).current;
 
@@ -69,20 +69,15 @@ export default function Contact() {
     setErrors(e);
     if (Object.keys(e).length) return runShake();
     setSending(true);
+    setFailed(false);
     try {
-      const delivered = await submitContact(form);
-      if (!delivered) {
-        Alert.alert(t.notConnectedTitle, t.notConnectedText, [
-          { text: t.cancel, style: 'cancel' },
-          { text: t.open, onPress: () => openLink(content.contactUrl, t.contactUs) },
-        ]);
-        return;
-      }
+      await submitContact(form);
       setSent(true);
       setForm(empty);
       Animated.spring(success, { toValue: 1, friction: 5, useNativeDriver: true }).start();
     } catch {
-      Alert.alert(t.errorTitle, t.errorText);
+      // Shown inline: Alert.alert does nothing in web browsers.
+      setFailed(true);
     } finally {
       setSending(false);
     }
@@ -98,7 +93,10 @@ export default function Contact() {
             <Animated.View style={[styles.success, { opacity: success, transform: [{ scale: success }] }]}>
               <Ionicons name="checkmark-circle" size={56} color={colors.teal} />
               <Text style={styles.successText}>{t.sentThanks}</Text>
-              <Button title={t.sendAnother} variant="outline" onPress={() => setSent(false)} />
+              <Button title={t.sendAnother} variant="outline" onPress={() => {
+                  success.setValue(0); // so the tick animates again after the next submission
+                  setSent(false);
+                }} />
             </Animated.View>
           ) : (
             <Reveal>
@@ -139,6 +137,16 @@ export default function Contact() {
                   multiline
                   error={errors.message}
                 />
+
+                {failed ? (
+                  <View style={styles.failBox}>
+                    <Ionicons name="alert-circle" size={20} color="#d64545" />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.failTitle}>{t.errorTitle}</Text>
+                      <Text style={styles.failText}>{t.errorText}</Text>
+                    </View>
+                  </View>
+                ) : null}
 
                 {sending ? (
                   <ActivityIndicator color={colors.blue} style={{ alignSelf: 'flex-start', margin: 12 }} />
@@ -204,6 +212,16 @@ const styles = StyleSheet.create({
   },
   chipActive: { backgroundColor: colors.blue },
   chipText: { color: colors.blue, fontSize: 13, fontWeight: '500' },
+  failBox: {
+    flexDirection: 'row',
+    gap: 10,
+    padding: 12,
+    marginBottom: space.md,
+    borderRadius: radius.sm,
+    backgroundColor: '#fdecec',
+  },
+  failTitle: { color: '#b33636', fontWeight: '600' },
+  failText: { color: '#b33636', fontSize: 13 },
   terms: { marginTop: space.md, fontSize: 12, color: colors.muted },
   success: { ...card, padding: space.xl, alignItems: 'center', gap: space.md },
   successText: { fontSize: 17, color: colors.ink, textAlign: 'center', fontWeight: '500' },

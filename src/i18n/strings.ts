@@ -15,7 +15,6 @@ const en = {
   boardOfDirectors: 'Board of Directors',
   leadershipTeam: 'Leadership Team',
   aboutMubadala: 'About Mubadala',
-  careers: 'Careers',
   companies: 'Companies',
   ourLeadership: 'Our Leadership',
   privacyPolicy: 'Privacy Policy',
@@ -45,11 +44,6 @@ const en = {
   loadMore: 'Load more',
   share: 'Share',
   viewOnline: 'View online',
-  // Careers
-  whyWorkWithUs: 'Why Work With Us?',
-  openPositions: 'Open Positions',
-  openPositionsText: 'Check our latest openings and apply online.',
-  exploreOpportunities: 'Explore Opportunities',
   // Contact
   contactSubtitle: 'How can we help?',
   name: 'Name*',
@@ -91,7 +85,6 @@ const ar: Strings = {
   boardOfDirectors: 'مجلس الإدارة',
   leadershipTeam: 'فريق القيادة',
   aboutMubadala: 'حول مبادلة',
-  careers: 'الوظائف',
   companies: 'الشركات',
   ourLeadership: 'فريقنا',
   privacyPolicy: 'سياسة الخصوصية',
@@ -117,10 +110,6 @@ const ar: Strings = {
   loadMore: 'عرض المزيد', // app-only
   share: 'مشاركة', // app-only
   viewOnline: 'عرض على الموقع', // app-only
-  whyWorkWithUs: 'لماذا تنضم إلينا؟',
-  openPositions: 'الوظائف المتاحة', // app-only
-  openPositionsText: 'اكتشف فرص الانضمام إلينا',
-  exploreOpportunities: 'اكتشف فرص الانضمام إلينا',
   contactSubtitle: 'كيف يمكننا مساعدتك؟',
   name: 'الاسم*',
   email: 'البريد الإلكتروني*',

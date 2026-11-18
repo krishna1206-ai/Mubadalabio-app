@@ -1,5 +1,6 @@
 // Board and leadership profiles mirrored from https://mubadalabio.ae/our-leadership/ (Nov 2026).
-export type Leader = { name: string; role: string; photo: string; bio: string[] };
+/** A profile. `id` is set for profiles loaded from the database (managed in /admin). */
+export type Leader = { id?: number; name: string; role: string; photo: string; bio: string[] };
 
 const people: (Leader & { group: 'board' | 'team' })[] = [
   {

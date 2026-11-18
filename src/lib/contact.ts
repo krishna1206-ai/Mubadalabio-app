@@ -1,3 +1,5 @@
+import { apiUrl } from './api';
+
 export type ContactForm = {
   name: string;
   email: string;
@@ -5,13 +7,6 @@ export type ContactForm = {
   department: string;
   message: string;
 };
-
-/**
- * Endpoint that receives contact form submissions as JSON.
- * The website's own form is not exposed as a public API, so set this to a
- * backend URL (e.g. a WordPress REST route or form service) before release.
- */
-export const CONTACT_ENDPOINT = '';
 
 type ErrorMessages = { errName: string; errEmail: string; errDepartment: string; errMessage: string };
 
@@ -25,14 +20,12 @@ export function validate(form: ContactForm, messages: ErrorMessages) {
   return errors;
 }
 
-/** Returns true when the message was delivered to CONTACT_ENDPOINT. */
-export async function submitContact(form: ContactForm): Promise<boolean> {
-  if (!CONTACT_ENDPOINT) return false;
-  const res = await fetch(CONTACT_ENDPOINT, {
+/** Saves the message through the app's backend (src/app/api/contact+api.ts). Throws on failure. */
+export async function submitContact(form: ContactForm): Promise<void> {
+  const res = await fetch(apiUrl('/api/contact'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(form),
   });
   if (!res.ok) throw new Error(`Contact request failed (${res.status})`);
-  return true;
 }

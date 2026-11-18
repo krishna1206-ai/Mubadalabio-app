@@ -75,7 +75,6 @@ function useMenuSections(): { title: string; items: MenuItem[] }[] {
         { title: t.aboutMubadalaBio, icon: 'information-circle-outline', href: '/about' },
         { title: t.boardOfDirectors, icon: 'people-outline', href: '/leadership' },
         { title: t.leadershipTeam, icon: 'person-outline', href: { pathname: '/leadership', params: { section: 'team' } } },
-        { title: t.careers, icon: 'briefcase-outline', href: '/careers' },
       ],
     },
     {

@@ -1,22 +1,34 @@
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useRef } from 'react';
-import { Animated, Share, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Animated, Share, StyleSheet, View } from 'react-native';
 
 import { Reveal, RevealContainer } from '@/components/Reveal';
 import { Text } from '@/components/Text';
 import { Button, openLink } from '@/components/ui';
 import { colors, space, type } from '@/constants/theme';
 import { useLanguage } from '@/i18n/LanguageProvider';
+import { useArticles } from '@/lib/useArticles';
 
 const HERO = 260;
 
 export default function Article() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { t, content } = useLanguage();
-  const { articles } = content;
-  const article = articles.find((a) => a.id === id) ?? articles[0];
+  const { t } = useLanguage();
+  const { articles, loading } = useArticles();
+  const found = articles.find((a) => a.id === id);
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  // Admin-added posts arrive from the API; wait for them before falling back to the latest article.
+  if (!found && loading) {
+    return (
+      <View style={[styles.screen, { alignItems: 'center', justifyContent: 'center' }]}>
+        <ActivityIndicator color={colors.blue} />
+      </View>
+    );
+  }
+  const article = found ?? articles[0];
+  if (!article) return <View style={styles.screen} />;
 
   // Parallax: the photo moves slower than the content and zooms when pulled down.
   const imageStyle = {
@@ -42,7 +54,7 @@ export default function Article() {
           </Animated.View>
           <View style={styles.body}>
             <Reveal>
-              <Text style={styles.tag}>{t.pressRelease}</Text>
+              <Text style={styles.tag}>{article.badge ?? t.pressRelease}</Text>
               <Text style={type.h1}>{article.title}</Text>
               <Text style={[type.small, { marginTop: space.sm, marginBottom: space.lg }]}>{article.date}</Text>
             </Reveal>
@@ -52,8 +64,19 @@ export default function Article() {
               </Reveal>
             ))}
             <View style={styles.actions}>
-              <Button title={t.share} icon="share-social" onPress={() => Share.share({ message: `${article.title}\n${article.url}` })} />
-              <Button title={t.viewOnline} variant="outline" icon="arrow-forward" onPress={() => openLink(article.url, t.pressRelease)} />
+              <Button
+                title={t.share}
+                icon="share-social"
+                onPress={() => Share.share({ message: article.url ? `${article.title}\n${article.url}` : article.title })}
+              />
+              {article.url ? (
+                <Button
+                  title={t.viewOnline}
+                  variant="outline"
+                  icon="arrow-forward"
+                  onPress={() => openLink(article.url, article.badge ?? t.pressRelease)}
+                />
+              ) : null}
             </View>
           </View>
         </Animated.ScrollView>

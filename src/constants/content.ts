@@ -158,18 +158,8 @@ export const verticals: Vertical[] = [
   },
 ];
 
-export type Article = { id: string; title: string; date: string; image: string; url: string; body: string[] };
-
-export const careers = {
-  intro:
-    'At Mubadala Bio, you’ll be part of a purpose-driven team working to transform healthcare access in the UAE and worldwide.',
-  why: [
-    'Collaborations with top global leaders.',
-    'Opportunities to contribute to pioneering facilities.',
-    'Development programs empowering UAE Nationals to lead the future of Life Sciences.',
-  ],
-  url: `${SITE}/careers/`,
-};
+/** A press release. `badge` defaults to "Press Release"; `url` (View online) may be empty for admin-added posts. */
+export type Article = { id: string; title: string; date: string; image: string; url: string; body: string[]; badge?: string };
 
 export const departments = ['General & Media', 'Business Development', 'Supply Chain', 'Legal', 'Careers'];
 

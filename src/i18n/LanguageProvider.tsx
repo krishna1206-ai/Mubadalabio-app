@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 import {
   about,
-  careers,
   departments,
   intro,
   office,
@@ -12,7 +11,7 @@ import {
   stats,
   verticals,
 } from '@/constants/content';
-import { aboutAr, careersAr, departmentsAr, introAr, officeAr, statsAr, verticalsAr } from '@/constants/content.ar';
+import { aboutAr, departmentsAr, introAr, officeAr, statsAr, verticalsAr } from '@/constants/content.ar';
 import { board, team } from '@/constants/leadership';
 import { board as boardAr, team as teamAr } from '@/constants/leadership.ar';
 import { articlesEn } from '@/constants/news';
@@ -30,7 +29,6 @@ const contentByLang = {
     about,
     verticals,
     articles: articlesEn,
-    careers,
     board,
     team,
     officeAddress: office.address,
@@ -44,7 +42,6 @@ const contentByLang = {
     about: aboutAr,
     verticals: verticalsAr,
     articles: articlesAr,
-    careers: careersAr,
     board: boardAr,
     team: teamAr,
     officeAddress: officeAr,

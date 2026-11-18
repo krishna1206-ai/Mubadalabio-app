@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { CountUp } from '@/components/CountUp';
 import { HeroBanner } from '@/components/HeroBanner';
@@ -14,12 +14,14 @@ import { VideoCard } from '@/components/VideoCard';
 import { media } from '@/constants/content';
 import { colors, gradient, space, type } from '@/constants/theme';
 import { useLanguage } from '@/i18n/LanguageProvider';
+import { useArticles } from '@/lib/useArticles';
 
 export default function Home() {
   const { width } = useWindowDimensions();
   const [countStarted, setCountStarted] = useState(false);
   const { t, content, isRTL } = useLanguage();
-  const { intro, stats, verticals, articles } = content;
+  const { intro, stats, verticals } = content;
+  const { articles, loading } = useArticles();
 
   return (
     <RevealScrollView style={styles.screen} showsVerticalScrollIndicator={false}>
@@ -104,6 +106,9 @@ export default function Home() {
         <Reveal>
           <Paragraph>{t.mediaIntro}</Paragraph>
         </Reveal>
+        {loading && !articles.length ? (
+          <ActivityIndicator color={colors.blue} style={{ marginVertical: space.lg }} />
+        ) : null}
         {articles.slice(0, 3).map((a, i) => (
           <Reveal key={a.id} delay={i * 100}>
             <NewsCard article={a} />

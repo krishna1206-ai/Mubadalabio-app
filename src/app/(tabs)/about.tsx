@@ -65,7 +65,6 @@ export default function About() {
           { title: t.boardOfDirectors, onPress: () => router.push('/leadership') },
           { title: t.leadershipTeam, onPress: () => router.push({ pathname: '/leadership', params: { section: 'team' } }) },
           { title: t.aboutMubadala, onPress: () => openLink(about.aboutMubadalaUrl, t.aboutMubadala) },
-          { title: t.careers, onPress: () => router.push('/careers') },
         ].map((l, i) => (
           <Reveal key={l.title} delay={i * 80} from="right">
             <PressableScale onPress={l.onPress} style={styles.linkRow} scaleTo={0.98}>

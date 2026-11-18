@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { PressableScale } from '@/components/PressableScale';
 import { Reveal, RevealScrollView } from '@/components/Reveal';
@@ -12,6 +12,7 @@ import { Button, Footer, PageHeader, directionalIcon } from '@/components/ui';
 import type { Article } from '@/constants/content';
 import { card, colors, radius, space, type } from '@/constants/theme';
 import { useLanguage } from '@/i18n/LanguageProvider';
+import { useArticles } from '@/lib/useArticles';
 
 const PAGE = 8;
 
@@ -30,7 +31,7 @@ function FeaturedCard({ article }: { article: Article }) {
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.featuredBody}>
-        <Text style={styles.featuredTag}>{t.pressRelease}</Text>
+        <Text style={styles.featuredTag}>{article.badge ?? t.pressRelease}</Text>
         <Text style={styles.featuredTitle} numberOfLines={4}>
           {article.title}
         </Text>
@@ -61,10 +62,11 @@ function ArticleRow({ article }: { article: Article }) {
 }
 
 export default function Media() {
-  const { t, content } = useLanguage();
+  const { t } = useLanguage();
   // Like the website's page 1 / page 2: the newest releases first, more on request.
   const [visible, setVisible] = useState(PAGE);
-  const [featured, ...rest] = content.articles;
+  const { articles, loading } = useArticles();
+  const [featured, ...rest] = articles;
   const shown = rest.slice(0, visible);
   const remaining = rest.length - shown.length;
 
@@ -72,9 +74,12 @@ export default function Media() {
     <RevealScrollView style={styles.screen} showsVerticalScrollIndicator={false}>
       <PageHeader title={t.media} subtitle={t.mediaIntro} />
       <View style={styles.section}>
-        <Reveal from="scale">
-          <FeaturedCard article={featured} />
-        </Reveal>
+        {loading && !featured ? <ActivityIndicator color={colors.blue} style={styles.loading} /> : null}
+        {featured ? (
+          <Reveal from="scale">
+            <FeaturedCard article={featured} />
+          </Reveal>
+        ) : null}
         {shown.map((a, i) => (
           <Reveal key={a.id} delay={(i % PAGE) * 60}>
             <ArticleRow article={a} />
@@ -120,5 +125,6 @@ const styles = StyleSheet.create({
     borderColor: colors.teal,
   },
   readMoreText: { fontSize: 11, color: colors.teal, fontWeight: '600' },
+  loading: { marginVertical: space.xl },
   loadMore: { alignSelf: 'center', marginTop: space.sm },
 });

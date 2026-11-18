@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
-import { Animated, Easing, Modal, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Modal, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PressableScale } from '@/components/PressableScale';
@@ -12,6 +12,7 @@ import { Footer, PageHeader, SectionTitle, directionalIcon } from '@/components/
 import type { Leader } from '@/constants/leadership';
 import { card, colors, radius, space, type } from '@/constants/theme';
 import { useLanguage } from '@/i18n/LanguageProvider';
+import { useLeaders } from '@/lib/useLeaders';
 
 function LeaderCard({ leader, onPress }: { leader: Leader; onPress: () => void }) {
   const { t, isRTL } = useLanguage();
@@ -102,7 +103,7 @@ function Grid({ people, onSelect }: { people: Leader[]; onSelect: (l: Leader) =>
   return (
     <View style={styles.grid}>
       {people.map((p, i) => (
-        <Reveal key={p.name} delay={(i % 2) * 120} from="scale" style={styles.cell}>
+        <Reveal key={p.id ?? p.name} delay={(i % 2) * 120} from="scale" style={styles.cell}>
           <LeaderCard leader={p} onPress={() => onSelect(p)} />
         </Reveal>
       ))}
@@ -114,7 +115,8 @@ export default function Leadership() {
   const { section } = useLocalSearchParams<{ section?: 'board' | 'team' }>();
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const [selected, setSelected] = useState<Leader | null>(null);
-  const { t, content } = useLanguage();
+  const { t } = useLanguage();
+  const { board, team, loading } = useLeaders();
 
   return (
     <>
@@ -125,7 +127,8 @@ export default function Leadership() {
           <Reveal>
             <SectionTitle>{t.boardOfDirectors}</SectionTitle>
           </Reveal>
-          <Grid people={content.board} onSelect={setSelected} />
+          {loading ? <ActivityIndicator color={colors.blue} style={styles.loading} /> : null}
+          <Grid people={board} onSelect={setSelected} />
         </View>
 
         <View
@@ -137,7 +140,8 @@ export default function Leadership() {
           <Reveal>
             <SectionTitle>{t.leadershipTeam}</SectionTitle>
           </Reveal>
-          <Grid people={content.team} onSelect={setSelected} />
+          {loading ? <ActivityIndicator color={colors.blue} style={styles.loading} /> : null}
+          <Grid people={team} onSelect={setSelected} />
         </View>
 
         <Footer />
@@ -152,6 +156,7 @@ const styles = StyleSheet.create({
   section: { paddingHorizontal: space.lg, paddingTop: space.xl, paddingBottom: space.sm },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: space.md },
   cell: { width: '48%' },
+  loading: { marginVertical: space.lg },
   card: { ...card, overflow: 'hidden' },
   photo: { width: '100%', aspectRatio: 618 / 770, backgroundColor: colors.bgSoft },
   cardBody: { padding: space.sm, paddingBottom: space.md },

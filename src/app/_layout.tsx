@@ -27,9 +27,9 @@ function RootStack() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="company/[slug]" options={{ header: () => <TopBar /> }} />
           <Stack.Screen name="news/[id]" options={{ title: t.pressRelease }} />
-          <Stack.Screen name="careers" options={{ title: t.careers }} />
           <Stack.Screen name="leadership" options={{ title: t.ourLeadership }} />
           <Stack.Screen name="web" options={{ title: '' }} />
+          <Stack.Screen name="admin" options={{ headerShown: false, title: 'Admin' }} />
         </Stack>
       </View>
     </LocaleProvider>
